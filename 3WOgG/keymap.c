@@ -2,6 +2,7 @@
 #include "version.h"
 #define MOON_LED_LEVEL LED_LEVEL
 #include "os_detection.h"          // custom: host‑OS detection
+#include "custom_overrides.h"
 #ifndef ZSA_SAFE_RANGE
 #define ZSA_SAFE_RANGE SAFE_RANGE
 #endif
@@ -112,69 +113,25 @@ bool rgb_matrix_indicators_user(void) {
 }
 
 // ────────────────────────────────────────────────────────────────────
-// Host‑OS detection, automatic Alt⌥/Gui⌘ swap and custom key overrides
+// Host‑OS detection and automatic Alt⌥/Gui⌘ swap
 // ────────────────────────────────────────────────────────────────────
 
-#define KO_ALT2CTL(letter)                                                \
-    static const key_override_t KO_ALT_##letter = {                       \
-        /* Alt has to be held … */                                        \
-        .trigger_mods    = MOD_MASK_ALT,                                  \
-        /* … and Alt is hidden from the report while the override is on */\
-        .suppressed_mods = MOD_MASK_ALT,                                  \
-        .layers          = ~0,            /* all layers */                \
-        .trigger         = KC_##letter,                                   \
-        .replacement     = LCTL(KC_##letter),                             \
-    };
-
-#define KO_GUI2CTL(letter)                                                \
-    static const key_override_t KO_GUI_##letter = {                       \
-        /* GUI has to be held … */                                        \
-        .trigger_mods    = MOD_MASK_GUI,                                  \
-        /* … and GUI is hidden from the report while the override is on */\
-        .suppressed_mods = MOD_MASK_GUI,                                  \
-        .layers          = ~0,            /* all layers */                \
-        .trigger         = KC_##letter,                                   \
-        .replacement     = LCTL(KC_##letter),                             \
-    };
-
-KO_ALT2CTL(C);   /* copy   */
-KO_ALT2CTL(V);   /* paste  */
-KO_ALT2CTL(X);   /* cut    */
-KO_ALT2CTL(A);   /* select-all */
-KO_ALT2CTL(Z);   /* undo   */
-KO_ALT2CTL(Y);   /* redo   */
-KO_ALT2CTL(W);   /* close-tab  */
-KO_ALT2CTL(T);   /* new-tab    */
-KO_ALT2CTL(R);   /* reload-tab */
-KO_ALT2CTL(F);   /* find/search */
-
-KO_GUI2CTL(LEFT);  /* word-left */
-KO_GUI2CTL(DOWN);  /* paragraph-down */
-KO_GUI2CTL(UP);    /* paragraph-up */
-KO_GUI2CTL(RIGHT); /* word-right */
-KO_GUI2CTL(BSPC);  /* delete-word */
-
-static const key_override_t *windows_overrides[] = {
-    &KO_ALT_C, &KO_ALT_V, &KO_ALT_X, &KO_ALT_A,
-    &KO_ALT_Z, &KO_ALT_Y, &KO_ALT_W, &KO_ALT_T, &KO_ALT_R, &KO_ALT_F,
-    &KO_GUI_LEFT, &KO_GUI_DOWN, &KO_GUI_UP, &KO_GUI_RIGHT, &KO_GUI_BSPC,
-    NULL
-};
-
-// This is what QMK pays attention to when searching for overrides.
-__attribute__((weak)) const key_override_t **key_overrides = NULL;
+static bool is_macos = true;
 
 bool process_detected_host_os_user(os_variant_t os) {
-    bool is_macos = os == OS_MACOS || os == OS_IOS;
+    is_macos = os == OS_MACOS || os == OS_IOS;
     // Swap command and option on Windows/Linux
     keymap_config.swap_lalt_lgui = !is_macos;
-    // Apply key overrides on Windows/Linux
-    key_overrides = is_macos ? NULL : windows_overrides;
     return true;
 }
 
 
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
+  // Handle most common overrides when Windows/Linux is used.
+  if (!is_macos && !process_common_override(keycode, record)) {
+    return false;
+  }
+
   switch (keycode) {
     case OS_MAC_WIN_LANG_CHANGE:
     if (!record->event.pressed) return false;
