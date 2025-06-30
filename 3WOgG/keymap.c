@@ -141,28 +141,19 @@ static const key_override_t *windows_overrides[] = {
 // This is what QMK pays attention to when searching for overrides.
 __attribute__((weak)) const key_override_t **key_overrides = NULL;
 
-// We poll exactly UNTIL the OS becomes stable, then stop → zero per‑loop cost.
-static bool os_stabilised = false;
-
-void housekeeping_task_user(void) {
-  if (os_stabilised) return;
-  os_variant_t os = detected_host_os();
-  if (os != OS_UNSURE) {
-    os_stabilised = true;
-
+bool process_detected_host_os_user(os_variant_t os) {
     bool is_macos = os == OS_MACOS || os == OS_IOS;
     // Swap command and option on Windows/Linux
     keymap_config.swap_lalt_lgui = !is_macos;
     // Apply key overrides on Windows/Linux
     key_overrides = is_macos ? NULL : windows_overrides;
-  }
 }
 
 
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
   switch (keycode) {
     case OS_MAC_WIN_LANG_CHANGE:
-    if (!record->event.pressed || !os_stabilised) return false;
+    if (!record->event.pressed) return false;
     switch (detected_host_os()) {
       case OS_MACOS:
       case OS_IOS:
