@@ -5,5 +5,6 @@ ORYX_ENABLE = yes
 RGB_MATRIX_CUSTOM_KB = yes
 SPACE_CADET_ENABLE = no
 
-# custom for automatic alt/option tweaking and os-dependent language switch 
+# custom addon for os-dependent features
 OS_DETECTION_ENABLE = yes
+KEY_OVERRIDE_ENABLE = yes
