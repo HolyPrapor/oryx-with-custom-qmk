@@ -126,16 +126,46 @@ static const key_override_t KO_GUI_T   = ko_make_basic(MOD_MASK_ALT, KC_T,   LCT
 static const key_override_t KO_GUI_R   = ko_make_basic(MOD_MASK_ALT, KC_R,   LCTL(KC_R));   // reload-tab
 static const key_override_t KO_GUI_F   = ko_make_basic(MOD_MASK_ALT, KC_F,   LCTL(KC_F));   // find/search
 
-static const key_override_t KO_ALT_L   = ko_make_basic(MOD_MASK_GUI, KC_LEFT,  LCTL(KC_LEFT));  // word-left
-static const key_override_t KO_ALT_D   = ko_make_basic(MOD_MASK_GUI, KC_DOWN, LCTL(KC_DOWN));   // word-down
-static const key_override_t KO_ALT_U   = ko_make_basic(MOD_MASK_GUI, KC_UP, LCTL(KC_UP));       // word-up
-static const key_override_t KO_ALT_R   = ko_make_basic(MOD_MASK_GUI, KC_RIGHT, LCTL(KC_RIGHT)); // word-right
-static const key_override_t KO_ALT_BSP = ko_make_basic(MOD_MASK_GUI, KC_BSPC,  LCTL(KC_BSPC));  // delete-prev-word
+static const key_override_t KO_ALT_LEFT  = {
+    .trigger_mods   = MOD_MASK_GUI,       // Win after the swap
+    .suppressed_mods= MOD_MASK_GUI,       // Hide Win from the host
+    .layers         = ~0,                 // All layers
+    .trigger        = KC_LEFT,
+    .replacement    = LCTL(KC_LEFT),
+}; // word-left
+static const key_override_t KO_ALT_DOWN  = {
+    .trigger_mods   = MOD_MASK_GUI,
+    .suppressed_mods= MOD_MASK_GUI,
+    .layers         = ~0,
+    .trigger        = KC_DOWN,
+    .replacement    = LCTL(KC_DOWN),
+}; // paragraph-down
+static const key_override_t KO_ALT_UP    = {
+    .trigger_mods   = MOD_MASK_GUI,
+    .suppressed_mods= MOD_MASK_GUI,
+    .layers         = ~0,
+    .trigger        = KC_UP,
+    .replacement    = LCTL(KC_UP),
+}; // paragraph-up
+static const key_override_t KO_ALT_RIGHT = {
+    .trigger_mods   = MOD_MASK_GUI,
+    .suppressed_mods= MOD_MASK_GUI,
+    .layers         = ~0,
+    .trigger        = KC_RIGHT,
+    .replacement    = LCTL(KC_RIGHT),
+}; // word-right
+static const key_override_t KO_ALT_BSPC = {
+    .trigger_mods   = MOD_MASK_GUI,
+    .suppressed_mods= MOD_MASK_GUI,
+    .layers         = ~0,
+    .trigger        = KC_BSPC,
+    .replacement    = LCTL(KC_BSPC),
+}; // delete-prev-word  
 
 static const key_override_t *windows_overrides[] = {
     &KO_GUI_C, &KO_GUI_V, &KO_GUI_X, &KO_GUI_A,
     &KO_GUI_Z, &KO_GUI_Y, &KO_GUI_W, &KO_GUI_T, &KO_GUI_R, &KO_GUI_F,
-    &KO_ALT_L, &KO_ALT_D, &KO_ALT_U, &KO_ALT_R, &KO_ALT_BSP,
+    &KO_ALT_LEFT, &KO_ALT_DOWN, &KO_ALT_UP, &KO_ALT_RIGHT, &KO_ALT_BSPC,
     NULL
 };
 
