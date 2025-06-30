@@ -115,57 +115,49 @@ bool rgb_matrix_indicators_user(void) {
 // Host‑OS detection, automatic Alt⌥/Gui⌘ swap and custom key overrides
 // ────────────────────────────────────────────────────────────────────
 
-static const key_override_t KO_GUI_C   = ko_make_basic(MOD_MASK_ALT, KC_C,   LCTL(KC_C));   // copy
-static const key_override_t KO_GUI_V   = ko_make_basic(MOD_MASK_ALT, KC_V,   LCTL(KC_V));   // paste
-static const key_override_t KO_GUI_X   = ko_make_basic(MOD_MASK_ALT, KC_X,   LCTL(KC_X));   // cut
-static const key_override_t KO_GUI_A   = ko_make_basic(MOD_MASK_ALT, KC_A,   LCTL(KC_A));   // select-all
-static const key_override_t KO_GUI_Z   = ko_make_basic(MOD_MASK_ALT, KC_Z,   LCTL(KC_Z));   // undo
-static const key_override_t KO_GUI_Y   = ko_make_basic(MOD_MASK_ALT, KC_Y,   LCTL(KC_Y));   // redo
-static const key_override_t KO_GUI_W   = ko_make_basic(MOD_MASK_ALT, KC_W,   LCTL(KC_W));   // close-tab
-static const key_override_t KO_GUI_T   = ko_make_basic(MOD_MASK_ALT, KC_T,   LCTL(KC_T));   // new-tab
-static const key_override_t KO_GUI_R   = ko_make_basic(MOD_MASK_ALT, KC_R,   LCTL(KC_R));   // reload-tab
-static const key_override_t KO_GUI_F   = ko_make_basic(MOD_MASK_ALT, KC_F,   LCTL(KC_F));   // find/search
+#define KO_ALT2CTL(letter)                                                \
+    static const key_override_t KO_ALT_##letter = {                       \
+        /* Alt has to be held … */                                        \
+        .trigger_mods    = MOD_MASK_ALT,                                  \
+        /* … and Alt is hidden from the report while the override is on */\
+        .suppressed_mods = MOD_MASK_ALT,                                  \
+        .layers          = ~0,            /* all layers */                \
+        .trigger         = KC_##letter,                                   \
+        .replacement     = LCTL(KC_##letter),                             \
+    };
 
-static const key_override_t KO_ALT_LEFT  = {
-    .trigger_mods   = MOD_MASK_GUI,       // Win after the swap
-    .suppressed_mods= MOD_MASK_GUI,       // Hide Win from the host
-    .layers         = ~0,                 // All layers
-    .trigger        = KC_LEFT,
-    .replacement    = LCTL(KC_LEFT),
-}; // word-left
-static const key_override_t KO_ALT_DOWN  = {
-    .trigger_mods   = MOD_MASK_GUI,
-    .suppressed_mods= MOD_MASK_GUI,
-    .layers         = ~0,
-    .trigger        = KC_DOWN,
-    .replacement    = LCTL(KC_DOWN),
-}; // paragraph-down
-static const key_override_t KO_ALT_UP    = {
-    .trigger_mods   = MOD_MASK_GUI,
-    .suppressed_mods= MOD_MASK_GUI,
-    .layers         = ~0,
-    .trigger        = KC_UP,
-    .replacement    = LCTL(KC_UP),
-}; // paragraph-up
-static const key_override_t KO_ALT_RIGHT = {
-    .trigger_mods   = MOD_MASK_GUI,
-    .suppressed_mods= MOD_MASK_GUI,
-    .layers         = ~0,
-    .trigger        = KC_RIGHT,
-    .replacement    = LCTL(KC_RIGHT),
-}; // word-right
-static const key_override_t KO_ALT_BSPC = {
-    .trigger_mods   = MOD_MASK_GUI,
-    .suppressed_mods= MOD_MASK_GUI,
-    .layers         = ~0,
-    .trigger        = KC_BSPC,
-    .replacement    = LCTL(KC_BSPC),
-}; // delete-prev-word  
+#define KO_GUI2CTL(letter)                                                \
+    static const key_override_t KO_GUI_##letter = {                       \
+        /* Alt has to be held … */                                        \
+        .trigger_mods    = MOD_MASK_GUI,                                  \
+        /* … and Alt is hidden from the report while the override is on */\
+        .suppressed_mods = MOD_MASK_GUI,                                  \
+        .layers          = ~0,            /* all layers */                \
+        .trigger         = KC_##letter,                                   \
+        .replacement     = LCTL(KC_##letter),                             \
+    };
+
+KO_ALT2CTL(C);   /* copy   */
+KO_ALT2CTL(V);   /* paste  */
+KO_ALT2CTL(X);   /* cut    */
+KO_ALT2CTL(A);   /* select-all */
+KO_ALT2CTL(Z);   /* undo   */
+KO_ALT2CTL(Y);   /* redo   */
+KO_ALT2CTL(W);   /* close-tab  */
+KO_ALT2CTL(T);   /* new-tab    */
+KO_ALT2CTL(R);   /* reload-tab */
+KO_ALT2CTL(F);   /* find/search */
+
+KO_GUI2CTL(LEFT);  /* word-left */
+KO_GUI2CTL(DOWN);  /* paragraph-down */
+KO_GUI2CTL(UP);    /* paragraph-up */
+KO_GUI2CTL(RIGHT); /* word-right */
+KO_GUI2CTL(BSPC);  /* delete-word */
 
 static const key_override_t *windows_overrides[] = {
-    &KO_GUI_C, &KO_GUI_V, &KO_GUI_X, &KO_GUI_A,
-    &KO_GUI_Z, &KO_GUI_Y, &KO_GUI_W, &KO_GUI_T, &KO_GUI_R, &KO_GUI_F,
-    &KO_ALT_LEFT, &KO_ALT_DOWN, &KO_ALT_UP, &KO_ALT_RIGHT, &KO_ALT_BSPC,
+    &KO_ALT_C, &KO_ALT_V, &KO_ALT_X, &KO_ALT_A,
+    &KO_ALT_Z, &KO_ALT_Y, &KO_ALT_W, &KO_ALT_T, &KO_ALT_R, &KO_ALT_F,
+    &KO_GUI_LEFT, &KO_GUI_DOWN, &KO_GUI_UP, &KO_GUI_RIGHT, &KO_GUI_BSPC,
     NULL
 };
 
