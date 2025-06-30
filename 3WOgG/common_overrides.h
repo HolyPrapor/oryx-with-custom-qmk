@@ -11,10 +11,12 @@ static inline uint16_t strip_qmk_mods   (uint16_t kc) { return kc & 0xFF;       
 
 /* Helper: if this is a dual-role key, return its tap kc; otherwise return keycode */
 static inline uint16_t base_key(uint16_t kc) {
-    if (IS_LAYER_TAP(kc) || IS_MOD_TAP(kc)) {
-        return GET_TAP_KC(kc);       // defined by QMK macros :contentReference[oaicite:1]{index=1}
-    }
-    return strip_qmk_mods(kc);
+    /* Unwrap dual-role keys ---------------------------------- */
+    if (IS_QK_MOD_TAP(kc))   return QK_MOD_TAP_GET_TAP_KEYCODE(kc);
+    if (IS_QK_LAYER_TAP(kc)) return QK_LAYER_TAP_GET_TAP_KEYCODE(kc);
+
+    /* Unwrap QMK's mod-prefixed keycodes, e.g. LALT(KC_LEFT) -- */
+    return kc & 0xFF;   /* just strip the high-byte modifier bits */
 }
 
 /* ---------------------------------------------------------------------
