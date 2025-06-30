@@ -7,4 +7,3 @@ SPACE_CADET_ENABLE = no
 
 // custom for automatic alt/option tweaking and os-dependent language switch 
 OS_DETECTION_ENABLE = yes
-DEFERRED_EXEC_ENABLE = yes
