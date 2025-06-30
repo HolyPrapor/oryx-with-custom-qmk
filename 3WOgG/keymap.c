@@ -2,7 +2,7 @@
 #include "version.h"
 #define MOON_LED_LEVEL LED_LEVEL
 #include "os_detection.h"          // custom: host‑OS detection
-#include "custom_overrides.h"
+#include "common_overrides.h"
 #ifndef ZSA_SAFE_RANGE
 #define ZSA_SAFE_RANGE SAFE_RANGE
 #endif
