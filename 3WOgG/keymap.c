@@ -115,21 +115,21 @@ bool rgb_matrix_indicators_user(void) {
 // Host‑OS detection, automatic Alt⌥/Gui⌘ swap and custom key overrides
 // ────────────────────────────────────────────────────────────────────
 
-static const key_override_t KO_GUI_C   = ko_make_basic(MOD_MASK_GUI, KC_C,   LCTL(KC_C));   // copy
-static const key_override_t KO_GUI_V   = ko_make_basic(MOD_MASK_GUI, KC_V,   LCTL(KC_V));   // paste
-static const key_override_t KO_GUI_X   = ko_make_basic(MOD_MASK_GUI, KC_X,   LCTL(KC_X));   // cut
-static const key_override_t KO_GUI_A   = ko_make_basic(MOD_MASK_GUI, KC_A,   LCTL(KC_A));   // select-all
-static const key_override_t KO_GUI_Z   = ko_make_basic(MOD_MASK_GUI, KC_Z,   LCTL(KC_Z));   // undo
-static const key_override_t KO_GUI_Y   = ko_make_basic(MOD_MASK_GUI, KC_Y,   LCTL(KC_Y));   // redo
-static const key_override_t KO_GUI_W   = ko_make_basic(MOD_MASK_GUI, KC_W,   LCTL(KC_W));   // close-tab
-static const key_override_t KO_GUI_T   = ko_make_basic(MOD_MASK_GUI, KC_T,   LCTL(KC_T));   // new-tab
-static const key_override_t KO_GUI_F   = ko_make_basic(MOD_MASK_GUI, KC_F,   LCTL(KC_F));   // find/search
+static const key_override_t KO_GUI_C   = ko_make_basic(MOD_MASK_ALT, KC_C,   LCTL(KC_C));   // copy
+static const key_override_t KO_GUI_V   = ko_make_basic(MOD_MASK_ALT, KC_V,   LCTL(KC_V));   // paste
+static const key_override_t KO_GUI_X   = ko_make_basic(MOD_MASK_ALT, KC_X,   LCTL(KC_X));   // cut
+static const key_override_t KO_GUI_A   = ko_make_basic(MOD_MASK_ALT, KC_A,   LCTL(KC_A));   // select-all
+static const key_override_t KO_GUI_Z   = ko_make_basic(MOD_MASK_ALT, KC_Z,   LCTL(KC_Z));   // undo
+static const key_override_t KO_GUI_Y   = ko_make_basic(MOD_MASK_ALT, KC_Y,   LCTL(KC_Y));   // redo
+static const key_override_t KO_GUI_W   = ko_make_basic(MOD_MASK_ALT, KC_W,   LCTL(KC_W));   // close-tab
+static const key_override_t KO_GUI_T   = ko_make_basic(MOD_MASK_ALT, KC_T,   LCTL(KC_T));   // new-tab
+static const key_override_t KO_GUI_F   = ko_make_basic(MOD_MASK_ALT, KC_F,   LCTL(KC_F));   // find/search
 
-static const key_override_t KO_ALT_L   = ko_make_basic(MOD_MASK_ALT, KC_LEFT,  LCTL(KC_LEFT));  // word-left
-static const key_override_t KO_ALT_D   = ko_make_basic(MOD_MASK_ALT, KC_DOWN, LCTL(KC_DOWN)); // word-down
-static const key_override_t KO_ALT_U   = ko_make_basic(MOD_MASK_ALT, KC_UP, LCTL(KC_UP)); // word-down
-static const key_override_t KO_ALT_R   = ko_make_basic(MOD_MASK_ALT, KC_RIGHT, LCTL(KC_RIGHT)); // word-right
-static const key_override_t KO_ALT_BSP = ko_make_basic(MOD_MASK_ALT, KC_BSPC,  LCTL(KC_BSPC));  // delete-prev-word
+static const key_override_t KO_ALT_L   = ko_make_basic(MOD_MASK_GUI, KC_LEFT,  LCTL(KC_LEFT));  // word-left
+static const key_override_t KO_ALT_D   = ko_make_basic(MOD_MASK_GUI, KC_DOWN, LCTL(KC_DOWN)); // word-down
+static const key_override_t KO_ALT_U   = ko_make_basic(MOD_MASK_GUI, KC_UP, LCTL(KC_UP)); // word-down
+static const key_override_t KO_ALT_R   = ko_make_basic(MOD_MASK_GUI, KC_RIGHT, LCTL(KC_RIGHT)); // word-right
+static const key_override_t KO_ALT_BSP = ko_make_basic(MOD_MASK_GUI, KC_BSPC,  LCTL(KC_BSPC));  // delete-prev-word
 
 static const key_override_t *windows_overrides[] = {
     &KO_GUI_C, &KO_GUI_V, &KO_GUI_X, &KO_GUI_A,
