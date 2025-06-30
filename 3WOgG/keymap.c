@@ -118,12 +118,9 @@ bool rgb_matrix_indicators_user(void) {
 // We poll exactly UNTIL the OS becomes stable, then stop → zero per‑loop cost.
 static bool os_stabilised = false;
 
+// Swap command and option on Windows/Linux
 static void sync_mod_swap_with_os(os_variant_t os) {
-  bool want_swap = (os == OS_MACOS);
-  if (keymap_config.swap_lalt_lgui != want_swap || keymap_config.swap_ralt_rgui != want_swap) {
-    keymap_config.swap_lalt_lgui = want_swap;
-    keymap_config.swap_ralt_rgui = want_swap;
-  }
+  keymap_config.swap_lalt_lgui = os != OS_MACOS && os != OS_IOS;
 }
 
 void housekeeping_task_user(void) {
@@ -142,9 +139,9 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     if (!record->event.pressed || !os_stabilised) return false;
     switch (detected_host_os()) {
       case OS_MACOS:
+      case OS_IOS:
         tap_code16(LCTL(KC_SPC));
         break;
-      case OS_WINDOWS:
       default:
         register_code(KC_LALT);
         register_code(KC_LSFT);
