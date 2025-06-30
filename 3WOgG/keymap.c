@@ -128,9 +128,9 @@ bool rgb_matrix_indicators_user(void) {
 
 #define KO_GUI2CTL(letter)                                                \
     static const key_override_t KO_GUI_##letter = {                       \
-        /* Alt has to be held … */                                        \
+        /* GUI has to be held … */                                        \
         .trigger_mods    = MOD_MASK_GUI,                                  \
-        /* … and Alt is hidden from the report while the override is on */\
+        /* … and GUI is hidden from the report while the override is on */\
         .suppressed_mods = MOD_MASK_GUI,                                  \
         .layers          = ~0,            /* all layers */                \
         .trigger         = KC_##letter,                                   \
