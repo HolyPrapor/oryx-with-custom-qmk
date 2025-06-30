@@ -37,7 +37,6 @@ static inline bool process_common_override(uint16_t keycode, keyrecord_t *record
     bool    altHeld  = mods & MOD_MASK_ALT;
     bool    ctrlHeld = mods & MOD_MASK_CTRL;
 
-
     /* ======================================================
      * Word/para navigation – Alt + arrows/Bksp → Ctrl
      * Copy/Paste etc. – Alt + letters → Ctrl
@@ -48,13 +47,13 @@ static inline bool process_common_override(uint16_t keycode, keyrecord_t *record
             case KC_Y: case KC_W: case KC_T: case KC_R: case KC_F:
             case KC_LEFT: case KC_DOWN: case KC_UP: case KC_RIGHT: case KC_BSPC:
                 tap_ctrl_combo_suppress(keycode, mods);
-                last_overridden = keycode;
+                last_overridden_kc = keycode;
                 return false;
             default:
                 break;
         }
     }
 
-    last_overridden = KC_NO;
+    last_overridden_kc = KC_NO;
     return true;
 }
