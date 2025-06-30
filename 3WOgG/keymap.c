@@ -114,7 +114,9 @@ bool rgb_matrix_indicators_user(void) {
 // ──────────────────────────────────────────────────────────────
 // Host‑OS detection & automatic Alt⌥/Gui⌘ swap
 // ──────────────────────────────────────────────────────────────
-static os_variant_t host_os = OS_UNSURE;
+
+// We poll exactly UNTIL the OS becomes stable, then stop → zero per‑loop cost.
+static bool os_stabilised = false;
 
 static void sync_mod_swap_with_os(os_variant_t os) {
   bool want_swap = (os == OS_MACOS);
@@ -124,20 +126,23 @@ static void sync_mod_swap_with_os(os_variant_t os) {
   }
 }
 
-bool process_detected_host_os_user(os_variant_t os) {
-  host_os = os;            // cache for OS‑specific key behaviour
-  sync_mod_swap_with_os(os);
-  return true;             // allow other code
+void housekeeping_task_user(void) {
+  if (os_stabilised) return;
+  os_variant_t os = detected_host_os();
+  if (os != OS_UNSURE) {
+    sync_mod_swap_with_os(os);
+    os_stabilised = true;
+  }
 }
 
 
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
   switch (keycode) {
     case OS_MAC_WIN_LANG_CHANGE:
-    if (!record->event.pressed) return false;
-    switch (host_os) {
+    if (!record->event.pressed || !os_stabilised) return false;
+    switch (detected_host_os()) {
       case OS_MACOS:
-        tap_code16(LALT(KC_SPC));   // Option + Space
+        tap_code16(LCTL(KC_SPC));
         break;
       case OS_WINDOWS:
       default:
