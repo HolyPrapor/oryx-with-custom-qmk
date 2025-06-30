@@ -125,7 +125,6 @@ static const key_override_t KO_GUI_W   = ko_make_basic(MOD_MASK_ALT, KC_W,   LCT
 static const key_override_t KO_GUI_T   = ko_make_basic(MOD_MASK_ALT, KC_T,   LCTL(KC_T));   // new-tab
 static const key_override_t KO_GUI_R   = ko_make_basic(MOD_MASK_ALT, KC_R,   LCTL(KC_R));   // reload-tab
 static const key_override_t KO_GUI_F   = ko_make_basic(MOD_MASK_ALT, KC_F,   LCTL(KC_F));   // find/search
-static const key_override_t KO_GUI_TAB = ko_make_basic(MOD_MASK_GUI, KC_TAB, LALT(KC_TAB)); // ⌘Tab → AltTab
 
 static const key_override_t KO_ALT_L   = ko_make_basic(MOD_MASK_GUI, KC_LEFT,  LCTL(KC_LEFT));  // word-left
 static const key_override_t KO_ALT_D   = ko_make_basic(MOD_MASK_GUI, KC_DOWN, LCTL(KC_DOWN));   // word-down
@@ -135,7 +134,7 @@ static const key_override_t KO_ALT_BSP = ko_make_basic(MOD_MASK_GUI, KC_BSPC,  L
 
 static const key_override_t *windows_overrides[] = {
     &KO_GUI_C, &KO_GUI_V, &KO_GUI_X, &KO_GUI_A,
-    &KO_GUI_Z, &KO_GUI_Y, &KO_GUI_W, &KO_GUI_T, &KO_GUI_R, &KO_GUI_F, &KO_GUI_TAB,
+    &KO_GUI_Z, &KO_GUI_Y, &KO_GUI_W, &KO_GUI_T, &KO_GUI_R, &KO_GUI_F,
     &KO_ALT_L, &KO_ALT_D, &KO_ALT_U, &KO_ALT_R, &KO_ALT_BSP,
     NULL
 };
@@ -146,7 +145,7 @@ __attribute__((weak)) const key_override_t **key_overrides = NULL;
 bool process_detected_host_os_user(os_variant_t os) {
     bool is_macos = os == OS_MACOS || os == OS_IOS;
     // Swap command and option on Windows/Linux
-    // keymap_config.swap_lalt_lgui = !is_macos; // turned off because of conflicts with key overrides
+    keymap_config.swap_lalt_lgui = !is_macos;
     // Apply key overrides on Windows/Linux
     key_overrides = is_macos ? NULL : windows_overrides;
     return true;
