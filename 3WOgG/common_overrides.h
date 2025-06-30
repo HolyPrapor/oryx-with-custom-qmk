@@ -23,9 +23,10 @@ static inline uint16_t base_key(uint16_t kc) {
  * Helper: send Ctrl+kc once, suppressing and then restoring the specified mods.
  * ------------------------------------------------------------------- */
 static inline void tap_ctrl_combo_suppress(uint16_t kc, uint8_t suppress_mods, uint8_t restore_mods) {
-    del_mods(suppress_mods);
+    neutralize_flashing_modifiers(suppress_mods);
+    unregister_mods(suppress_mods);
     tap_code16(LCTL(kc));
-    set_mods(restore_mods);
+    register_mods(restore_mods);
 }
 
 /* ---------------------------------------------------------------------
