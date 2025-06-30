@@ -7,4 +7,3 @@ SPACE_CADET_ENABLE = no
 
 # custom addon for os-dependent features
 OS_DETECTION_ENABLE = yes
-KEY_OVERRIDE_ENABLE = yes
