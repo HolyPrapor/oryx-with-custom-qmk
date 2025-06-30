@@ -1,7 +1,8 @@
 #include QMK_KEYBOARD_H
 #include "version.h"
 #define MOON_LED_LEVEL LED_LEVEL
-#include "os_detection.h"          // host‑OS detection
+#include "os_detection.h"          // custom: host‑OS detection
+#include "key_override.h"          // custom: key overrides
 #ifndef ZSA_SAFE_RANGE
 #define ZSA_SAFE_RANGE SAFE_RANGE
 #endif
@@ -11,7 +12,7 @@ enum custom_keycodes {
   HSV_0_255_255,
   HSV_74_255_255,
   HSV_169_255_255,
-  OS_MAC_WIN_LANG_CHANGE,          // Alt+Shift (Win) / Opt+Space (macOS)
+  OS_MAC_WIN_LANG_CHANGE,          // Alt+Shift (Win) / Ctrl+Space (macOS)
   ST_MACRO_0,
   ST_MACRO_1,
   ST_MACRO_2,
@@ -111,24 +112,50 @@ bool rgb_matrix_indicators_user(void) {
   return true;
 }
 
-// ──────────────────────────────────────────────────────────────
-// Host‑OS detection & automatic Alt⌥/Gui⌘ swap
-// ──────────────────────────────────────────────────────────────
+// ────────────────────────────────────────────────────────────────────
+// Host‑OS detection, automatic Alt⌥/Gui⌘ swap and custom key overrides
+// ────────────────────────────────────────────────────────────────────
+
+static const key_override_t KO_GUI_C   = ko_make_basic(MOD_MASK_GUI, KC_C,   LCTL(KC_C));   // copy
+static const key_override_t KO_GUI_V   = ko_make_basic(MOD_MASK_GUI, KC_V,   LCTL(KC_V));   // paste
+static const key_override_t KO_GUI_X   = ko_make_basic(MOD_MASK_GUI, KC_X,   LCTL(KC_X));   // cut
+static const key_override_t KO_GUI_A   = ko_make_basic(MOD_MASK_GUI, KC_A,   LCTL(KC_A));   // select-all
+static const key_override_t KO_GUI_Z   = ko_make_basic(MOD_MASK_GUI, KC_Z,   LCTL(KC_Z));   // undo
+static const key_override_t KO_GUI_Y   = ko_make_basic(MOD_MASK_GUI, KC_Y,   LCTL(KC_Y));   // redo
+static const key_override_t KO_GUI_W   = ko_make_basic(MOD_MASK_GUI, KC_W,   LCTL(KC_W));   // close-tab
+static const key_override_t KO_GUI_T   = ko_make_basic(MOD_MASK_GUI, KC_T,   LCTL(KC_T));   // new-tab
+static const key_override_t KO_GUI_F   = ko_make_basic(MOD_MASK_GUI, KC_F,   LCTL(KC_F));   // find/search
+
+static const key_override_t KO_ALT_L   = ko_make_basic(MOD_MASK_ALT, KC_LEFT,  LCTL(KC_LEFT));  // word-left
+static const key_override_t KO_ALT_D   = ko_make_basic(MOD_MASK_ALT, KC_DOWN, LCTL(KC_DOWN)); // word-down
+static const key_override_t KO_ALT_U   = ko_make_basic(MOD_MASK_ALT, KC_UP, LCTL(KC_UP)); // word-down
+static const key_override_t KO_ALT_R   = ko_make_basic(MOD_MASK_ALT, KC_RIGHT, LCTL(KC_RIGHT)); // word-right
+static const key_override_t KO_ALT_BSP = ko_make_basic(MOD_MASK_ALT, KC_BSPC,  LCTL(KC_BSPC));  // delete-prev-word
+
+static const key_override_t *windows_overrides[] = {
+    &KO_GUI_C, &KO_GUI_V, &KO_GUI_X, &KO_GUI_A,
+    &KO_GUI_Z, &KO_GUI_Y, &KO_GUI_W, &KO_GUI_T, &KO_GUI_F,
+    &KO_ALT_L, &KO_ALT_D, &KO_ALT_U, &KO_ALT_R, &KO_ALT_BSP,
+    NULL
+};
+
+// This is what QMK pays attention to when searching for overrides.
+__attribute__((weak)) const key_override_t **key_overrides = NULL;
 
 // We poll exactly UNTIL the OS becomes stable, then stop → zero per‑loop cost.
 static bool os_stabilised = false;
-
-// Swap command and option on Windows/Linux
-static void sync_mod_swap_with_os(os_variant_t os) {
-  keymap_config.swap_lalt_lgui = os != OS_MACOS && os != OS_IOS;
-}
 
 void housekeeping_task_user(void) {
   if (os_stabilised) return;
   os_variant_t os = detected_host_os();
   if (os != OS_UNSURE) {
-    sync_mod_swap_with_os(os);
     os_stabilised = true;
+
+    bool is_macos = os == OS_MACOS || os == OS_IOS;
+    // Swap command and option on Windows/Linux
+    keymap_config.swap_lalt_lgui = !is_macos;
+    // Apply key overrides on Windows/Linux
+    key_overrides = is_macos ? NULL : windows_overrides;
   }
 }
 
