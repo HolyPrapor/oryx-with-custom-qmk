@@ -20,10 +20,10 @@ static inline uint16_t base_key(uint16_t kc) {
 /* ---------------------------------------------------------------------
  * Helper: send Ctrl+kc once, suppressing and then restoring the specified mods.
  * ------------------------------------------------------------------- */
-static inline void tap_ctrl_combo_suppress(uint16_t kc, uint8_t current_mods) {
-    del_mods(current_mods);
+static inline void tap_ctrl_combo_suppress(uint16_t kc, uint8_t suppress_mods, uint8_t restore_mods) {
+    del_mods(suppress_mods);
     tap_code16(LCTL(kc));
-    set_mods(current_mods);
+    set_mods(restore_mods);
 }
 
 /* ---------------------------------------------------------------------
@@ -51,7 +51,7 @@ static inline bool process_common_override(uint16_t keycode, keyrecord_t *record
     uint8_t all_mods    = real_mods | qmk_mods;        // treat them the same
     
     bool altHeld  = all_mods & MOD_MASK_ALT;
-    bool guiHeld  = all_mods & MOD_MASK_GUI;
+    // bool guiHeld  = all_mods & MOD_MASK_GUI;
     bool ctrlHeld = all_mods & MOD_MASK_CTRL;
     
     uint16_t plain_kc = base_key(keycode);
@@ -65,7 +65,7 @@ static inline bool process_common_override(uint16_t keycode, keyrecord_t *record
             case KC_C: case KC_V: case KC_X: case KC_A: case KC_Z:
             case KC_Y: case KC_W: case KC_T: case KC_R: case KC_F:
             case KC_LEFT: case KC_DOWN: case KC_UP: case KC_RIGHT: case KC_BSPC:
-                tap_ctrl_combo_suppress(plain_kc, mods);
+                tap_ctrl_combo_suppress(plain_kc, all_mods, real_mods);
                 last_overridden_kc = keycode;
                 return false;
             default:
