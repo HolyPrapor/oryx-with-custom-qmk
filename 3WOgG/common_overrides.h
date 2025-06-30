@@ -23,16 +23,19 @@ static inline void tap_ctrl_combo_suppress(uint16_t kc, uint8_t suppress_mask) {
  * Returns false when the keypress/release has been fully handled.
  * ------------------------------------------------------------------- */
 static inline bool process_common_override(uint16_t keycode, keyrecord_t *record) {
-    /* Swallow key‑release events for keys we acted on during press. */
+    /* Remember if the *previous press* was converted → we must eat its release */
+    static uint16_t last_overridden_kc = KC_NO;
+
+    /* ---------------------------------------------------------
+     * Handle key‑RELEASE first: swallow only if we converted the
+     * matching press (prevents stuck keys / key‑repeat spam).
+     * ------------------------------------------------------- */
     if (!record->event.pressed) {
-        switch (keycode) {
-            case KC_C: case KC_V: case KC_X: case KC_A: case KC_Z: case KC_Y:
-            case KC_W: case KC_T: case KC_R: case KC_F:
-            case KC_LEFT: case KC_DOWN: case KC_UP: case KC_RIGHT: case KC_BSPC:
-                return false;
-            default:
-                return true;
+        if (keycode == last_overridden_kc) {
+            last_overridden_kc = KC_NO;      /* done with this override */
+            return false;                    /* swallow release        */
         }
+        return true;                         /* not ours → let it through */
     }
 
     uint8_t mods     = get_mods();
