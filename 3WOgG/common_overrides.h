@@ -9,9 +9,11 @@
 static inline uint8_t  mods_from_keycode(uint16_t kc) { return (kc >> 8) & 0x1F; }
 static inline uint16_t strip_qmk_mods   (uint16_t kc) { return kc & 0xFF;        }
 
-/* Return true for the "prefixed" one-shot mod codes: LCTL(KC_C), LALT(KC_LEFT)… */
-static inline bool is_qk_mods_prefix(uint16_t kc) {
-    return (kc & 0xF000) == QK_MODS;    /* top nibble 0x0–0x4 in current QMK */
+/* Helper: if this is a dual-role key, the mods are not active, so we should ignore them. */
+static inline uint8_t effective_mods(uint16_t kc) {
+    return (IS_QK_MOD_TAP(kc) || IS_QK_LAYER_TAP(kc))
+           ? 0
+           : mods_from_keycode(kc);
 }
 
 /* Helper: if this is a dual-role key, return its tap kc; otherwise return keycode */
@@ -55,11 +57,10 @@ static inline bool process_common_override(uint16_t keycode, keyrecord_t *record
     }
 
     uint8_t real_mods   = get_mods();                  // keys the user is holding
-    uint8_t qmk_mods    = is_qk_mods_prefix(keycode) ? mods_from_keycode(keycode) : 0;  // mods baked into LALT(...)
+    uint8_t qmk_mods    = effective_mods(keycode);  // mods baked into LALT(...)
     uint8_t all_mods    = real_mods | qmk_mods;        // treat them the same
     
     bool altHeld  = all_mods & MOD_MASK_ALT;
-    // bool guiHeld  = all_mods & MOD_MASK_GUI;
     bool ctrlHeld = all_mods & MOD_MASK_CTRL;
     
     uint16_t plain_kc = base_key(keycode);
