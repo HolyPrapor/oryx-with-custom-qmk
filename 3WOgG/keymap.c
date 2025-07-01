@@ -21,7 +21,8 @@ enum custom_keycodes {
 
 
 
-#define DUAL_FUNC_0 LT(13, KC_0)
+#define DUAL_FUNC_0 LT(15, KC_S)
+#define DUAL_FUNC_1 LT(11, KC_P)
 
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   [0] = LAYOUT_voyager(
@@ -34,7 +35,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   [1] = LAYOUT_voyager(
     KC_F1,          KC_F2,          KC_F3,          KC_F4,          KC_F5,          KC_F6,                                          KC_F7,          KC_F8,          KC_F9,          KC_F10,         KC_F11,         KC_F12,         
     KC_TRANSPARENT, KC_TRANSPARENT, ST_MACRO_0,     KC_LPRN,        KC_RPRN,        ST_MACRO_1,                                     LALT(KC_LEFT),  LALT(KC_DOWN),  LALT(KC_UP),    LALT(KC_RIGHT), KC_TRANSPARENT, KC_BSPC,        
-    KC_TRANSPARENT, KC_TRANSPARENT, LGUI(LCTL(LSFT(KC_SPACE))),KC_LBRC,        KC_RBRC,        ST_MACRO_2,                                     KC_LEFT,        KC_DOWN,        KC_UP,          KC_RIGHT,       KC_TRANSPARENT, KC_TRANSPARENT, 
+    KC_TRANSPARENT, KC_TRANSPARENT, DUAL_FUNC_1,    KC_LBRC,        KC_RBRC,        ST_MACRO_2,                                     KC_LEFT,        KC_DOWN,        KC_UP,          KC_RIGHT,       KC_TRANSPARENT, KC_TRANSPARENT, 
     KC_TRANSPARENT, KC_LABK,        KC_RABK,        KC_LCBR,        KC_RCBR,        ST_MACRO_3,                                     KC_HOME,        LGUI(KC_DOWN),  LGUI(KC_UP),    KC_END,         KC_TRANSPARENT, KC_TRANSPARENT, 
                                                     KC_TRANSPARENT, KC_TRANSPARENT,                                 KC_TRANSPARENT, KC_TRANSPARENT
   ),
@@ -181,6 +182,21 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
           register_code16(KC_RBRC);
         } else {
           unregister_code16(KC_RBRC);
+        }  
+      }  
+      return false;
+    case DUAL_FUNC_1:
+      if (record->tap.count > 0) {
+        if (record->event.pressed) {
+          register_code16(LALT(KC_SPACE));
+        } else {
+          unregister_code16(LALT(KC_SPACE));
+        }
+      } else {
+        if (record->event.pressed) {
+          register_code16(KC_LEFT_ALT);
+        } else {
+          unregister_code16(KC_LEFT_ALT);
         }  
       }  
       return false;
