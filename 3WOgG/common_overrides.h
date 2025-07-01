@@ -1,4 +1,4 @@
-/* common_overrides.h – header‑only replacement for common key-overrides on Windows/Linux */
+/* common_overrides.h – header‑only replacement for common key-overrides on Windows/Linux. Assumes LGUI/LALT swapping! */
 
 #pragma once
 
@@ -26,12 +26,12 @@ static inline uint16_t base_key(uint16_t kc) {
     return kc & 0xFF;   /* just strip the high-byte modifier bits */
 }
 
-/* Does this kc behave as Alt? */
+/* Does this kc behave as Alt? Assumes LGUI/LALT swapping! */
 static inline bool is_alt_keycode(uint16_t kc) {
-    if (kc == KC_LALT || kc == KC_RALT) return true;
+    if (kc == KC_LGUI || kc == KC_RGUI) return true;
     if (IS_QK_MOD_TAP(kc)) {
         uint8_t mt_mods = QK_MOD_TAP_GET_MODS(kc);
-        return mt_mods & (MOD_LALT | MOD_RALT);
+        return mt_mods & (MOD_LGUI | MOD_RGUI);
     }
     return false;
 }
