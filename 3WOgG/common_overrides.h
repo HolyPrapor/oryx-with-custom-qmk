@@ -31,12 +31,18 @@ static inline uint16_t base_key(uint16_t kc) {
 /* ------------------------------------------------------------------ */
 static uint16_t active_override_kc  = KC_NO;   // the key we converted
 static uint8_t  restore_mods_cached = 0;       // mods to restore later
+static bool     prev_overridden = false;       // whether the previously handled key was overridden
 
 /* ---------------------------------------------------------------------
  * Core hook – call this from process_record_user().
  * Returns false when the keypress/release has been fully handled.
  * ------------------------------------------------------------------- */
 static inline bool process_common_override(uint16_t keycode, keyrecord_t *record) {
+    /* ------------------------- PRESS branch ------------------------- */
+    uint8_t real_mods = get_mods();         /* physical modifiers held  */
+    uint8_t qmk_mods  = effective_mods(keycode);
+    uint8_t all_mods  = real_mods | qmk_mods;
+
     /* ---------------------- Handle RELEASE first -------------------- */
     if (!record->event.pressed) {
         if (keycode == active_override_kc) {
@@ -46,19 +52,19 @@ static inline bool process_common_override(uint16_t keycode, keyrecord_t *record
             register_mods(restore_mods_cached);
             active_override_kc  = KC_NO;
             restore_mods_cached = 0;
-            return false;                 /* we handled this release   */
+            prev_overridden = true;
+            return false;
         }
-        return true;                      /* nothing special to do     */
+        // Stop treating ALT as a key press after overrides to prevent flashing
+        if (prev_overridden && (qmk_mods & MOD_MASK_ALT)) {
+            neutralize_flashing_modifiers(MOD_MASK_ALT);
+        }
+        prev_overridden = false;
+        return true;
     }
-
-    /* ------------------------- PRESS branch ------------------------- */
-    uint8_t real_mods = get_mods();         /* physical modifiers held  */
-    uint8_t qmk_mods  = effective_mods(keycode);
-    uint8_t all_mods  = real_mods | qmk_mods;
 
     bool altHeld  = all_mods & MOD_MASK_ALT;
     bool ctrlHeld = all_mods & MOD_MASK_CTRL;
-
     uint16_t plain_kc = base_key(keycode);
 
     /* ===== Alt (without Ctrl) overrides that should become Ctrl ===== */
@@ -71,8 +77,8 @@ static inline bool process_common_override(uint16_t keycode, keyrecord_t *record
             case KC_BSPC:
                 /* 1. Neutralise & lift all currently active mods so the
                  *    host never sees Alt (avoids Alt-menus etc.)       */
-                neutralize_flashing_modifiers(all_mods);
-                unregister_mods(all_mods);
+                neutralize_flashing_modifiers(MOD_MASK_ALT);
+                unregister_mods(MOD_MASK_ALT);
 
                 /* 2. Hold Ctrl+plain_kc until the key is released      */
                 register_code16(LCTL(plain_kc));
@@ -89,5 +95,6 @@ static inline bool process_common_override(uint16_t keycode, keyrecord_t *record
 
     /* No override applied – let QMK handle normally                    */
     active_override_kc = KC_NO;
+    prev_overridden = false;
     return true;
 }
