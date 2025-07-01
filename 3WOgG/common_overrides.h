@@ -26,6 +26,16 @@ static inline uint16_t base_key(uint16_t kc) {
     return kc & 0xFF;   /* just strip the high-byte modifier bits */
 }
 
+/* Does this kc behave as Alt? */
+static inline bool is_alt_keycode(uint16_t kc) {
+    if (kc == KC_LALT || kc == KC_RALT) return true;
+    if (IS_QK_MOD_TAP(kc)) {
+        uint8_t mt_mods = QK_MOD_TAP_GET_MODS(kc);
+        return mt_mods & (MOD_LALT | MOD_RALT);
+    }
+    return false;
+}
+
 /* ------------------------------------------------------------------ */
 /* State we need between press and release                            */
 /* ------------------------------------------------------------------ */
@@ -42,12 +52,13 @@ static inline bool process_common_override(uint16_t keycode, keyrecord_t *record
     uint8_t real_mods = get_mods();         /* physical modifiers held  */
     uint8_t qmk_mods  = effective_mods(keycode);
     uint8_t all_mods  = real_mods | qmk_mods;
+    uint16_t plain_kc = base_key(keycode);
 
     /* ---------------------- Handle RELEASE first -------------------- */
     if (!record->event.pressed) {
         if (keycode == active_override_kc) {
             /* Drop the Ctrl+key we registered on press                 */
-            unregister_code16(LCTL(base_key(keycode)));
+            unregister_code16(LCTL(plain_kc));
             /* Give the user’s real mods back (they’re still physically held) */
             register_mods(restore_mods_cached);
             active_override_kc  = KC_NO;
@@ -56,7 +67,7 @@ static inline bool process_common_override(uint16_t keycode, keyrecord_t *record
             return false;
         }
         // Stop treating ALT as a key press after overrides to prevent flashing
-        if (prev_overridden && (qmk_mods & MOD_MASK_ALT)) {
+        if (prev_overridden && is_alt_keycode(keycode)) {
             neutralize_flashing_modifiers(MOD_MASK_ALT);
         }
         prev_overridden = false;
@@ -65,7 +76,6 @@ static inline bool process_common_override(uint16_t keycode, keyrecord_t *record
 
     bool altHeld  = all_mods & MOD_MASK_ALT;
     bool ctrlHeld = all_mods & MOD_MASK_CTRL;
-    uint16_t plain_kc = base_key(keycode);
 
     /* ===== Alt (without Ctrl) overrides that should become Ctrl ===== */
     if (altHeld && !ctrlHeld) {
