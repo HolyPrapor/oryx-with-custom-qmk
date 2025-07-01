@@ -26,62 +26,68 @@ static inline uint16_t base_key(uint16_t kc) {
     return kc & 0xFF;   /* just strip the high-byte modifier bits */
 }
 
-/* ---------------------------------------------------------------------
- * Helper: send Ctrl+kc once, suppressing and then restoring the specified mods.
- * ------------------------------------------------------------------- */
-static inline void tap_ctrl_combo_suppress(uint16_t kc, uint8_t suppress_mods, uint8_t restore_mods) {
-    neutralize_flashing_modifiers(suppress_mods);
-    unregister_mods(suppress_mods);
-    tap_code16(LCTL(kc));
-    register_mods(restore_mods);
-}
+/* ------------------------------------------------------------------ */
+/* State we need between press and release                            */
+/* ------------------------------------------------------------------ */
+static uint16_t active_override_kc  = KC_NO;   // the key we converted
+static uint8_t  restore_mods_cached = 0;       // mods to restore later
 
 /* ---------------------------------------------------------------------
  * Core hook – call this from process_record_user().
  * Returns false when the keypress/release has been fully handled.
  * ------------------------------------------------------------------- */
 static inline bool process_common_override(uint16_t keycode, keyrecord_t *record) {
-    /* Remember if the *previous press* was converted → we must eat its release */
-    static uint16_t last_overridden_kc = KC_NO;
-
-    /* ---------------------------------------------------------
-     * Handle key‑RELEASE first: swallow only if we converted the
-     * matching press (prevents stuck keys / key‑repeat spam).
-     * ------------------------------------------------------- */
+    /* ---------------------- Handle RELEASE first -------------------- */
     if (!record->event.pressed) {
-        if (keycode == last_overridden_kc) {
-            last_overridden_kc = KC_NO;
-            return false;
+        if (keycode == active_override_kc) {
+            /* Drop the Ctrl+key we registered on press                 */
+            unregister_code16(LCTL(base_key(keycode)));
+            /* Give the user’s real mods back (they’re still physically held) */
+            register_mods(restore_mods_cached);
+            active_override_kc  = KC_NO;
+            restore_mods_cached = 0;
+            return false;                 /* we handled this release   */
         }
-        return true;
+        return true;                      /* nothing special to do     */
     }
 
-    uint8_t real_mods   = get_mods();                  // keys the user is holding
-    uint8_t qmk_mods    = effective_mods(keycode);  // mods baked into LALT(...)
-    uint8_t all_mods    = real_mods | qmk_mods;        // treat them the same
-    
+    /* ------------------------- PRESS branch ------------------------- */
+    uint8_t real_mods = get_mods();         /* physical modifiers held  */
+    uint8_t qmk_mods  = effective_mods(keycode);
+    uint8_t all_mods  = real_mods | qmk_mods;
+
     bool altHeld  = all_mods & MOD_MASK_ALT;
     bool ctrlHeld = all_mods & MOD_MASK_CTRL;
-    
+
     uint16_t plain_kc = base_key(keycode);
 
-    /* ======================================================
-     * Word/para navigation – Alt + arrows/Bksp → Ctrl
-     * Copy/Paste etc. – Alt + letters → Ctrl
-     * ==================================================== */
+    /* ===== Alt (without Ctrl) overrides that should become Ctrl ===== */
     if (altHeld && !ctrlHeld) {
         switch (plain_kc) {
+            /* letters, navigation & editing keys --------------------- */
             case KC_C: case KC_V: case KC_X: case KC_A: case KC_Z:
             case KC_Y: case KC_W: case KC_T: case KC_R: case KC_F:
-            case KC_LEFT: case KC_DOWN: case KC_UP: case KC_RIGHT: case KC_BSPC:
-                tap_ctrl_combo_suppress(plain_kc, all_mods, real_mods);
-                last_overridden_kc = keycode;
-                return false;
+            case KC_LEFT: case KC_DOWN: case KC_UP: case KC_RIGHT:
+            case KC_BSPC:
+                /* 1. Neutralise & lift all currently active mods so the
+                 *    host never sees Alt (avoids Alt-menus etc.)       */
+                neutralize_flashing_modifiers(all_mods);
+                unregister_mods(all_mods);
+
+                /* 2. Hold Ctrl+plain_kc until the key is released      */
+                register_code16(LCTL(plain_kc));
+
+                /* 3. Remember what to do on release                    */
+                active_override_kc  = keycode;
+                restore_mods_cached = real_mods;   /* only physical mods */
+
+                return false;   /* event fully processed */
             default:
                 break;
         }
     }
 
-    last_overridden_kc = KC_NO;
+    /* No override applied – let QMK handle normally                    */
+    active_override_kc = KC_NO;
     return true;
 }
