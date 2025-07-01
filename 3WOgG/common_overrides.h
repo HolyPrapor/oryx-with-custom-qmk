@@ -68,7 +68,7 @@ static inline bool process_common_override(uint16_t keycode, keyrecord_t *record
         }
         // Stop treating ALT as a key press after overrides to prevent flashing
         if (prev_overridden && is_alt_keycode(keycode)) {
-            neutralize_flashing_modifiers(MOD_MASK_ALT);
+            neutralize_flashing_modifiers(MOD_BIT(KC_LEFT_ALT));
         }
         prev_overridden = false;
         return true;
@@ -87,7 +87,7 @@ static inline bool process_common_override(uint16_t keycode, keyrecord_t *record
             case KC_BSPC:
                 /* 1. Neutralise & lift all currently active mods so the
                  *    host never sees Alt (avoids Alt-menus etc.)       */
-                neutralize_flashing_modifiers(MOD_MASK_ALT);
+                neutralize_flashing_modifiers(MOD_BIT(KC_LEFT_ALT));
                 unregister_mods(MOD_MASK_ALT);
 
                 /* 2. Hold Ctrl+plain_kc until the key is released      */
