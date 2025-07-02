@@ -9,6 +9,8 @@
 
 // custom: for key overrides
 #define DUMMY_MOD_NEUTRALIZER_KEYCODE KC_RIGHT_CTRL
+// custom: for KVM compatibility
+#define OS_DETECTION_KEYBOARD_RESET
 
 #undef ENABLE_RGB_MATRIX_GRADIENT_LEFT_RIGHT
 #undef ENABLE_RGB_MATRIX_BREATHING
