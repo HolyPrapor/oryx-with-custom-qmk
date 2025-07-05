@@ -84,7 +84,7 @@ static inline bool process_common_override(uint16_t keycode, keyrecord_t *record
             case KC_C: case KC_V: case KC_X: case KC_A: case KC_Z:
             case KC_Y: case KC_W: case KC_T: case KC_R: case KC_F:
             case KC_LEFT: case KC_DOWN: case KC_UP: case KC_RIGHT:
-            case KC_BSPC: case KC_SLSH: case KC_L: case KC_S:
+            case KC_BSPC: case KC_SLSH: case KC_L: case KC_S: case KC_SPC:
                 /* 1. Neutralise & lift all currently active mods so the
                  *    host never sees Alt (avoids Alt-menus etc.)       */
                 neutralize_flashing_modifiers(MOD_BIT(KC_LEFT_ALT));
