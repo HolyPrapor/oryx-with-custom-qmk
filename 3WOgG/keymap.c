@@ -13,6 +13,7 @@ enum custom_keycodes {
   HSV_74_255_255,
   HSV_169_255_255,
   OS_MAC_WIN_LANG_CHANGE,          // Alt+Shift (Win) / Ctrl+Space (macOS)
+  OS_MAC_WIN_SCREENSHOT,           // Win+Shift+S (Win) / Cmd+Shift+4 (macOS)
   ST_MACRO_0,
   ST_MACRO_1,
   ST_MACRO_2,
@@ -40,7 +41,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
                                                     KC_TRANSPARENT, KC_TRANSPARENT,                                 KC_TRANSPARENT, KC_TRANSPARENT
   ),
   [2] = LAYOUT_voyager(
-    KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT,                                 KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, 
+    OS_MAC_WIN_SCREENSHOT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT,                          KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, 
     KC_TRANSPARENT, KC_QUES,        KC_PLUS,        KC_LPRN,        KC_RPRN,        KC_DQUO,                                        KC_AMPR,        KC_CIRC,        KC_AT,          KC_HASH,        KC_DLR,         KC_TRANSPARENT, 
     KC_TRANSPARENT, KC_EXLM,        KC_ASTR,        KC_LBRC,        KC_RBRC,        KC_EQUAL,                                       KC_PIPE,        KC_COLN,        KC_TILD,        KC_PERC,        KC_TRANSPARENT, KC_ENTER,       
     KC_TRANSPARENT, KC_LABK,        KC_RABK,        KC_LCBR,        KC_RCBR,        KC_QUOTE,                                       KC_MINUS,       KC_UNDS,        KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, 
@@ -149,6 +150,17 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
         break;
     }
     return false;
+    case OS_MAC_WIN_SCREENSHOT:
+    if (!record->event.pressed) return false;
+    switch (detected_host_os()) {
+      case OS_MACOS:
+      case OS_IOS:
+        tap_code16(LGUI(LSFT(KC_4)));
+        break;
+      default:
+        tap_code16(LGUI(LSFT(KC_S)));
+        break;
+    }
     case ST_MACRO_0:
     if (record->event.pressed) {
       SEND_STRING(SS_LCTL(SS_LSFT(SS_TAP(X_W))));
