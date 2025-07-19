@@ -67,8 +67,9 @@ static inline bool process_common_override(uint16_t keycode, keyrecord_t *record
             if (!(real_mods & MOD_MASK_CTRL)) {
                 restore_mods_cached &= ~MOD_MASK_ALT;   // delete Alt bit because it's not held anymore
             }
-            /* Drop the Ctrl+key we registered on press                 */
-            unregister_code16(LCTL(plain_kc));
+            /* Drop the Ctrl+key we registered on press */
+            unregister_code16(plain_kc);
+            unregister_mods(MOD_MASK_CTRL);
             /* Give the user’s real mods back (they’re still physically held) */
             register_mods(restore_mods_cached);
             active_override_kc  = KC_NO;
@@ -101,7 +102,8 @@ static inline bool process_common_override(uint16_t keycode, keyrecord_t *record
                 unregister_mods(MOD_MASK_ALT);
 
                 /* 2. Hold Ctrl+plain_kc until the key is released      */
-                register_code16(LCTL(plain_kc));
+                register_mods(MOD_MASK_CTRL);
+                register_code16(plain_kc);
 
                 /* 3. Remember what to do on release                    */
                 active_override_kc  = keycode;
