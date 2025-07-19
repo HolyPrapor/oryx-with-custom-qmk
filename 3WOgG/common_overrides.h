@@ -64,11 +64,11 @@ static inline bool process_common_override(uint16_t keycode, keyrecord_t *record
 
         /* --- Letting go of the key --- */
         if (keycode == active_override_kc) {
-            /* Drop the Ctrl+key we registered on press                 */
-            unregister_code16(LCTL(plain_kc));
             if (!(real_mods & MOD_MASK_CTRL)) {
                 restore_mods_cached &= ~MOD_MASK_ALT;   // delete Alt bit because it's not held anymore
             }
+            /* Drop the Ctrl+key we registered on press                 */
+            unregister_code16(LCTL(plain_kc));
             /* Give the user’s real mods back (they’re still physically held) */
             register_mods(restore_mods_cached);
             active_override_kc  = KC_NO;
