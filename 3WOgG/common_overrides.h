@@ -112,7 +112,7 @@ static inline bool process_common_override(uint16_t keycode, keyrecord_t *record
                 /* 3. Remember what to do on release                    */
                 active_override_kc  = keycode;
                 restore_mods_cached = real_mods;   /* only physical mods */
-                alt_still_held = true;
+                alt_still_held = real_mods & MOD_MASK_ALT;
 
                 return false;   /* event fully processed */
             default:
