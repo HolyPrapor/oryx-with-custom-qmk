@@ -136,31 +136,32 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
 
   switch (keycode) {
     case OS_MAC_WIN_LANG_CHANGE:
-    if (!record->event.pressed) return false;
-    switch (detected_host_os()) {
-      case OS_MACOS:
-      case OS_IOS:
-        tap_code16(LCTL(KC_SPC));
-        break;
-      default:
-        register_code(KC_LALT);
-        register_code(KC_LSFT);
-        unregister_code(KC_LSFT);
-        unregister_code(KC_LALT);
-        break;
-    }
-    return false;
+      if (!record->event.pressed) return false;
+      switch (detected_host_os()) {
+        case OS_MACOS:
+        case OS_IOS:
+          tap_code16(LCTL(KC_SPC));
+          break;
+        default:
+          register_code(KC_LALT);
+          register_code(KC_LSFT);
+          unregister_code(KC_LSFT);
+          unregister_code(KC_LALT);
+          break;
+      }
+      return false;
     case OS_MAC_WIN_SCREENSHOT:
-    if (!record->event.pressed) return false;
-    switch (detected_host_os()) {
-      case OS_MACOS:
-      case OS_IOS:
-        tap_code16(LGUI(LSFT(KC_4)));
-        break;
-      default:
-        tap_code16(LGUI(LSFT(KC_S)));
-        break;
-    }
+      if (!record->event.pressed) return false;
+      switch (detected_host_os()) {
+        case OS_MACOS:
+        case OS_IOS:
+          tap_code16(LGUI(LSFT(KC_4)));
+          break;
+        default:
+          tap_code16(LGUI(LSFT(KC_S)));
+          break;
+      }
+      return false;
     case ST_MACRO_0:
     if (record->event.pressed) {
       SEND_STRING(SS_LCTL(SS_LSFT(SS_TAP(X_W))));
