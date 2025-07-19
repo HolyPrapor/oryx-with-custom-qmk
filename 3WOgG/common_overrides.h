@@ -42,6 +42,7 @@ static inline bool is_alt_keycode(uint16_t kc) {
 static uint16_t active_override_kc  = KC_NO;   // the key we converted
 static uint8_t  restore_mods_cached = 0;       // mods to restore later
 static bool     prev_overridden = false;       // whether the previously handled key was overridden
+static bool     alt_still_held  = false;
 
 /* ---------------------------------------------------------------------
  * Core hook – call this from process_record_user().
@@ -57,24 +58,27 @@ static inline bool process_common_override(uint16_t keycode, keyrecord_t *record
     /* ---------------------- Handle RELEASE first -------------------- */
     if (!record->event.pressed) {
         /* --- Letting go of modifier before the key --- */
-        if (active_override_kc != KC_NO && is_alt_keycode(keycode)) {
+        if (alt_still_held && active_override_kc != KC_NO && is_alt_keycode(keycode)) {
             unregister_mods(MOD_MASK_CTRL);
+            alt_still_held = false;
             return true;
         }
 
         /* --- Letting go of the key --- */
         if (keycode == active_override_kc) {
-            if (!(real_mods & MOD_MASK_CTRL)) {
-                restore_mods_cached &= ~MOD_MASK_ALT;   // delete Alt bit because it's not held anymore
+            uint8_t mods_to_restore = restore_mods_cached & real_mods;
+            if (alt_still_held) {
+                mods_to_restore |= MOD_MASK_ALT;
             }
             /* Drop the Ctrl+key we registered on press */
             unregister_code16(plain_kc);
             unregister_mods(MOD_MASK_CTRL);
             /* Give the user’s real mods back (they’re still physically held) */
-            register_mods(restore_mods_cached);
+            register_mods(mods_to_restore);
             active_override_kc  = KC_NO;
             restore_mods_cached = 0;
             prev_overridden = true;
+            alt_still_held = false;
             return false;
         }
         // Stop treating ALT as a key press after overrides to prevent flashing
@@ -108,6 +112,7 @@ static inline bool process_common_override(uint16_t keycode, keyrecord_t *record
                 /* 3. Remember what to do on release                    */
                 active_override_kc  = keycode;
                 restore_mods_cached = real_mods;   /* only physical mods */
+                alt_still_held = true;
 
                 return false;   /* event fully processed */
             default:
@@ -118,5 +123,6 @@ static inline bool process_common_override(uint16_t keycode, keyrecord_t *record
     /* No override applied – let QMK handle normally                    */
     active_override_kc = KC_NO;
     prev_overridden = false;
+    alt_still_held = false;
     return true;
 }
