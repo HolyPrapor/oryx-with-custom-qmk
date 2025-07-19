@@ -56,11 +56,18 @@ static inline bool process_common_override(uint16_t keycode, keyrecord_t *record
 
     /* ---------------------- Handle RELEASE first -------------------- */
     if (!record->event.pressed) {
+        /* --- Letting go of modifier before the key --- */
+        if (active_override_kc != KC_NO && is_alt_keycode(keycode)) {
+            unregister_mods(MOD_MASK_CTRL);
+            return true;
+        }
+
+        /* --- Letting go of the key --- */
         if (keycode == active_override_kc) {
             /* Drop the Ctrl+key we registered on press                 */
             unregister_code16(LCTL(plain_kc));
             /* Give the user’s real mods back (they’re still physically held) */
-            register_mods(restore_mods_cached);
+            register_mods(restore_mods_cached & real_mods);
             active_override_kc  = KC_NO;
             restore_mods_cached = 0;
             prev_overridden = true;
