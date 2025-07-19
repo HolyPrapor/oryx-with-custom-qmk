@@ -59,7 +59,7 @@ static inline bool process_common_override(uint16_t keycode, keyrecord_t *record
     if (!record->event.pressed) {
         /* --- Letting go of modifier before the key --- */
         if (alt_still_held && active_override_kc != KC_NO && is_alt_keycode(keycode)) {
-            unregister_mods(MOD_MASK_CTRL);
+            unregister_mods(MOD_BIT_LCTRL);
             alt_still_held = false;
             return true;
         }
@@ -68,11 +68,11 @@ static inline bool process_common_override(uint16_t keycode, keyrecord_t *record
         if (keycode == active_override_kc) {
             uint8_t mods_to_restore = restore_mods_cached & real_mods;
             if (alt_still_held) {
-                mods_to_restore |= MOD_MASK_ALT;
+                mods_to_restore |= MOD_BIT_LALT;
             }
             /* Drop the Ctrl+key we registered on press */
             unregister_code16(plain_kc);
-            unregister_mods(MOD_MASK_CTRL);
+            unregister_mods(MOD_BIT_LCTRL);
             /* Give the user’s real mods back (they’re still physically held) */
             register_mods(mods_to_restore);
             active_override_kc  = KC_NO;
@@ -83,7 +83,7 @@ static inline bool process_common_override(uint16_t keycode, keyrecord_t *record
         }
         // Stop treating ALT as a key press after overrides to prevent flashing
         if (prev_overridden && is_alt_keycode(keycode)) {
-            neutralize_flashing_modifiers(MOD_BIT(KC_LEFT_ALT));
+            neutralize_flashing_modifiers(MOD_BIT_LALT);
         }
         prev_overridden = false;
         return true;
@@ -102,11 +102,11 @@ static inline bool process_common_override(uint16_t keycode, keyrecord_t *record
             case KC_BSPC: case KC_SLSH: case KC_L: case KC_S: case KC_SPC:
                 /* 1. Neutralise & lift all currently active mods so the
                  *    host never sees Alt (avoids Alt-menus etc.)       */
-                neutralize_flashing_modifiers(MOD_BIT(KC_LEFT_ALT));
-                unregister_mods(MOD_MASK_ALT);
+                neutralize_flashing_modifiers(MOD_BIT_LALT);
+                unregister_mods(MOD_BIT_LALT);
 
                 /* 2. Hold Ctrl+plain_kc until the key is released      */
-                register_mods(MOD_MASK_CTRL);
+                register_mods(MOD_BIT_LCTRL);
                 register_code16(plain_kc);
 
                 /* 3. Remember what to do on release                    */
