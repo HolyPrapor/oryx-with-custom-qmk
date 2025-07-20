@@ -162,27 +162,6 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
           break;
       }
       return false;
-    case ST_MACRO_0:
-    if (record->event.pressed) {
-      SEND_STRING(SS_LCTL(SS_LSFT(SS_TAP(X_W))));
-    }
-    break;
-    case ST_MACRO_1:
-    if (record->event.pressed) {
-      SEND_STRING(SS_LCTL(SS_LSFT(SS_TAP(X_T))));
-    }
-    break;
-    case ST_MACRO_2:
-    if (record->event.pressed) {
-      SEND_STRING(SS_LCTL(SS_LSFT(SS_TAP(X_G))));
-    }
-    break;
-    case ST_MACRO_3:
-    if (record->event.pressed) {
-      SEND_STRING(SS_LCTL(SS_LSFT(SS_TAP(X_E))));
-    }
-    break;
-
     case DUAL_FUNC_0:
       if (record->tap.count > 0) {
         if (record->event.pressed) {
@@ -195,21 +174,6 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
           register_code16(KC_RBRC);
         } else {
           unregister_code16(KC_RBRC);
-        }  
-      }  
-      return false;
-    case DUAL_FUNC_1:
-      if (record->tap.count > 0) {
-        if (record->event.pressed) {
-          register_code16(LALT(KC_SPACE));
-        } else {
-          unregister_code16(LALT(KC_SPACE));
-        }
-      } else {
-        if (record->event.pressed) {
-          register_code16(KC_LEFT_ALT);
-        } else {
-          unregister_code16(KC_LEFT_ALT);
         }  
       }  
       return false;
@@ -239,5 +203,3 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
   }
   return true;
 }
-
-
