@@ -41,8 +41,8 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
                                                     KC_TRANSPARENT, KC_TRANSPARENT,                                 KC_TRANSPARENT, KC_TRANSPARENT
   ),
   [2] = LAYOUT_voyager(
-    OS_MAC_WIN_SCREENSHOT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT,                          KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, 
-    KC_TRANSPARENT, KC_QUES,        KC_PLUS,        KC_LPRN,        KC_RPRN,        KC_DQUO,                                        KC_AMPR,        KC_CIRC,        KC_AT,          KC_HASH,        KC_DLR,         KC_TRANSPARENT, 
+    KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT,                          KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, 
+    OS_MAC_WIN_SCREENSHOT, KC_QUES,        KC_PLUS,        KC_LPRN,        KC_RPRN,        KC_DQUO,                                        KC_AMPR,        KC_CIRC,        KC_AT,          KC_HASH,        KC_DLR,         KC_TRANSPARENT, 
     KC_TRANSPARENT, KC_EXLM,        KC_ASTR,        KC_LBRC,        KC_RBRC,        KC_EQUAL,                                       KC_PIPE,        KC_COLN,        KC_TILD,        KC_PERC,        KC_TRANSPARENT, KC_ENTER,       
     KC_TRANSPARENT, KC_LABK,        KC_RABK,        KC_LCBR,        KC_RCBR,        KC_QUOTE,                                       KC_MINUS,       KC_UNDS,        KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, 
                                                     KC_TRANSPARENT, KC_TRANSPARENT,                                 KC_TRANSPARENT, KC_TRANSPARENT
