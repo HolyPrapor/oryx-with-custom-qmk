@@ -1,6 +1,8 @@
 #include QMK_KEYBOARD_H
 #include "version.h"
 #define MOON_LED_LEVEL LED_LEVEL
+#include "os_detection.h"          // custom: host‑OS detection
+#include "common_overrides.h"
 #ifndef ZSA_SAFE_RANGE
 #define ZSA_SAFE_RANGE SAFE_RANGE
 #endif
@@ -10,6 +12,8 @@ enum custom_keycodes {
   HSV_0_255_255,
   HSV_74_255_255,
   HSV_169_255_255,
+  OS_MAC_WIN_LANG_CHANGE,          // Alt+Shift (Win) / Ctrl+Space (macOS)
+  OS_MAC_WIN_SCREENSHOT,           // Win+Shift+S (Win) / Cmd+Shift+4 (macOS)
 };
 
 
@@ -33,17 +37,17 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   ),
   [2] = LAYOUT_voyager(
     KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT,                                 KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, 
-    KC_TRANSPARENT, KC_AT,          KC_QUES,        KC_LPRN,        KC_RPRN,        KC_DQUO,                                        KC_AMPR,        KC_HASH,        KC_DLR,         KC_TILD,        KC_CIRC,        KC_TRANSPARENT, 
+    OS_MAC_WIN_SCREENSHOT, KC_AT,          KC_QUES,        KC_LPRN,        KC_RPRN,        KC_DQUO,                                        KC_AMPR,        KC_HASH,        KC_DLR,         KC_TILD,        KC_CIRC,        KC_TRANSPARENT, 
     KC_TRANSPARENT, KC_PERC,        KC_ASTR,        KC_LBRC,        KC_RBRC,        KC_EQUAL,                                       KC_COLN,        KC_UNDS,        KC_PLUS,        KC_MINUS,       KC_TRANSPARENT, KC_ENTER,       
     KC_TRANSPARENT, KC_LABK,        KC_RABK,        KC_LCBR,        KC_RCBR,        KC_QUOTE,                                       KC_PIPE,        KC_EXLM,        KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, 
                                                     KC_TRANSPARENT, KC_TRANSPARENT,                                 KC_TRANSPARENT, KC_TRANSPARENT
   ),
   [3] = LAYOUT_voyager(
-    RGB_TOG,        TOGGLE_LAYER_COLOR,RGB_MODE_FORWARD,RGB_SLD,        RGB_VAD,        RGB_VAI,                                        KC_AUDIO_VOL_UP,KC_AUDIO_MUTE,  KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, QK_BOOT,        
+    RGB_TOG,        TOGGLE_LAYER_COLOR,RGB_MODE_FORWARD,RGB_SLD,        RGB_VAD,        RGB_VAI,                                        KC_AUDIO_VOL_UP,KC_AUDIO_MUTE,  KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT,        
     KC_TRANSPARENT, RGB_HUD,        RGB_HUI,        RGB_SAD,        RGB_SAI,        KC_TRANSPARENT,                                 KC_AUDIO_VOL_DOWN,KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, 
     KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT,                                 KC_TRANSPARENT, KC_MEDIA_PLAY_PAUSE,KC_MEDIA_PREV_TRACK,KC_MEDIA_NEXT_TRACK,KC_TRANSPARENT, KC_TRANSPARENT, 
     KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, HSV_0_255_255,  HSV_74_255_255, HSV_169_255_255,                                KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, 
-                                                    KC_TRANSPARENT, KC_TRANSPARENT,                                 LCTL(KC_SPACE), KC_TRANSPARENT
+                                                    KC_TRANSPARENT, KC_TRANSPARENT,                                 OS_MAC_WIN_LANG_CHANGE, KC_TRANSPARENT
   ),
 };
 
@@ -105,10 +109,54 @@ bool rgb_matrix_indicators_user(void) {
   return true;
 }
 
+// ────────────────────────────────────────────────────────────────────
+// Host‑OS detection and automatic Alt⌥/Gui⌘ swap
+// ────────────────────────────────────────────────────────────────────
+
+static bool is_macos = true;
+
+bool process_detected_host_os_user(os_variant_t os) {
+    is_macos = os == OS_MACOS || os == OS_IOS;
+    // Swap command and option on Windows/Linux
+    keymap_config.swap_lalt_lgui = !is_macos;
+    return true;
+}
+
 
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
-  switch (keycode) {
+  // Handle most common overrides when Windows/Linux is used.
+  if (!is_macos && !process_common_override(keycode, record)) {
+    return false;
+  }
 
+  switch (keycode) {
+    case OS_MAC_WIN_LANG_CHANGE:
+      if (!record->event.pressed) return false;
+      switch (detected_host_os()) {
+        case OS_MACOS:
+        case OS_IOS:
+          tap_code16(LCTL(KC_SPC));
+          break;
+        default:
+          register_code(KC_LALT);
+          register_code(KC_LSFT);
+          unregister_code(KC_LSFT);
+          unregister_code(KC_LALT);
+          break;
+      }
+      return false;
+    case OS_MAC_WIN_SCREENSHOT:
+      if (!record->event.pressed) return false;
+      switch (detected_host_os()) {
+        case OS_MACOS:
+        case OS_IOS:
+          tap_code16(LGUI(LSFT(KC_4)));
+          break;
+        default:
+          tap_code16(LGUI(LSFT(KC_S)));
+          break;
+      }
+      return false;
     case DUAL_FUNC_0:
       if (record->tap.count > 0) {
         if (record->event.pressed) {
@@ -150,5 +198,3 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
   }
   return true;
 }
-
-
