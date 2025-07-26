@@ -14,6 +14,7 @@ enum custom_keycodes {
   HSV_169_255_255,
   OS_MAC_WIN_LANG_CHANGE,          // Alt+Shift (Win) / Ctrl+Space (macOS)
   OS_MAC_WIN_SCREENSHOT,           // Win+Shift+S (Win) / Cmd+Shift+4 (macOS)
+  OS_MAC_WIN_RAYCAST,              // Ctrl+Shift+Space (Win) / Alt+Space (macOS)
 };
 
 
@@ -31,7 +32,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   [1] = LAYOUT_voyager(
     KC_F1,          KC_F2,          KC_F3,          KC_F4,          KC_F5,          KC_F6,                                          KC_F7,          KC_F8,          KC_F9,          KC_F10,         KC_F11,         KC_F12,         
     KC_TRANSPARENT, KC_TRANSPARENT, LCTL(LSFT(KC_W)),KC_LPRN,        KC_RPRN,        LCTL(LSFT(KC_T)),                                LALT(KC_LEFT),  LALT(KC_DOWN),  LALT(KC_UP),    LALT(KC_RIGHT), LCTL(KC_P),     KC_BSPC,        
-    KC_TRANSPARENT, KC_TRANSPARENT, LALT(KC_SPACE), KC_LBRC,        KC_RBRC,        LCTL(LSFT(KC_G)),                                KC_LEFT,        KC_DOWN,        KC_UP,          KC_RIGHT,       KC_TRANSPARENT, KC_TRANSPARENT, 
+    KC_TRANSPARENT, KC_TRANSPARENT, OS_MAC_WIN_RAYCAST, KC_LBRC,        KC_RBRC,        LCTL(LSFT(KC_G)),                                KC_LEFT,        KC_DOWN,        KC_UP,          KC_RIGHT,       KC_TRANSPARENT, KC_TRANSPARENT, 
     KC_TRANSPARENT, KC_LABK,        KC_RABK,        KC_LCBR,        KC_RCBR,        LCTL(LSFT(KC_E)),                                KC_HOME,        LGUI(KC_DOWN),  LGUI(KC_UP),    KC_END,         KC_TRANSPARENT, KC_TRANSPARENT, 
                                                     KC_TRANSPARENT, KC_TRANSPARENT,                                 KC_TRANSPARENT, KC_TRANSPARENT
   ),
@@ -154,6 +155,18 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
           break;
         default:
           tap_code16(LGUI(LSFT(KC_S)));
+          break;
+      }
+      return false;
+    case OS_MAC_WIN_RAYCAST:
+      if (!record->event.pressed) return false;
+      switch (detected_host_os()) {
+        case OS_MACOS:
+        case OS_IOS:
+          tap_code16(LGUI(KC_SPC));
+          break;
+        default:
+          tap_code16(LCTRL(LSFT(KC_SPC));
           break;
       }
       return false;
