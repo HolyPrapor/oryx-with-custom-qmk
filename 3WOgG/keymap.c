@@ -166,7 +166,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
           tap_code16(LGUI(KC_SPC));
           break;
         default:
-          tap_code16(LCTRL(LSFT(KC_SPC));
+          tap_code16(LCTL(LSFT(KC_SPC)));
           break;
       }
       return false;
