@@ -163,7 +163,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
       switch (detected_host_os()) {
         case OS_MACOS:
         case OS_IOS:
-          tap_code16(LGUI(KC_SPC));
+          tap_code16(LALT(KC_SPC));
           break;
         default:
           tap_code16(LCTL(LSFT(KC_SPC)));
