@@ -218,23 +218,18 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
 }
 
 // this is the default tap flow implementation with KC_SPC commented out to allow shift to work properly
-bool is_tap_flow_key(uint16_t keycode) {
-  switch (keycode) {
-    case QK_MOD_TAP ... QK_MOD_TAP_MAX:
-      keycode = QK_MOD_TAP_GET_TAP_KEYCODE(keycode);
-      break;
-    case QK_LAYER_TAP ... QK_LAYER_TAP_MAX:
-      keycode = QK_LAYER_TAP_GET_TAP_KEYCODE(keycode);
-      break;
-  }
-  switch (keycode) {
-    // case KC_SPC:
-    case KC_A ... KC_Z:
-    case KC_DOT:
-    case KC_COMM:
-    case KC_SCLN:
-    case KC_SLSH:
-      return true;
-  }
-  return false;
+bool is_flow_tap_key(uint16_t keycode) {
+    if ((get_mods() & (MOD_MASK_CG | MOD_BIT_LALT)) != 0) {
+        return false; // Disable Flow Tap on hotkeys.
+    }
+    switch (get_tap_keycode(keycode)) {
+        // case KC_SPC:
+        case KC_A ... KC_Z:
+        case KC_DOT:
+        case KC_COMM:
+        case KC_SCLN:
+        case KC_SLSH:
+            return true;
+    }
+    return false;
 }
