@@ -233,3 +233,24 @@ bool is_flow_tap_key(uint16_t keycode) {
     }
     return false;
 }
+
+// this is the default caps word implementation with KC_MINS moved to "non shifting" keys.
+bool caps_word_press_user(uint16_t keycode) {
+    switch (keycode) {
+        // Keycodes that continue Caps Word, with shift applied.
+        case KC_A ... KC_Z:
+            add_weak_mods(MOD_BIT(KC_LSFT));  // Apply shift to next key.
+            return true;
+
+        // Keycodes that continue Caps Word, without shifting.
+        case KC_1 ... KC_0:
+        case KC_BSPC:
+        case KC_DEL:
+        case KC_UNDS:
+        case KC_MINS:
+            return true;
+
+        default:
+            return false;  // Deactivate Caps Word.
+    }
+}
